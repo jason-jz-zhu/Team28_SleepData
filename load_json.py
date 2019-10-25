@@ -1,5 +1,4 @@
 import pyspark
-from __future__ import print_function
 from pyspark.sql import SparkSession
 from pyspark.sql import Row
 
@@ -9,14 +8,14 @@ def json_dataset_example(spark, number_of_file):
     # hdfs dfs -put subject* /input
     for i in range(number_of_file):
             # update to your path
-        path = "/input/file_%s.json"%i
+        path = "/input/file_%s.json"%(i+1)
         #read in data
         sleepDF = spark.read.option("inferSchema", "true").json(path).repartition(10)
-        print("succcessfully read the subject%s"%i)
+        print("succcessfully read the file%s"%(i+1))
         # print schema
         sleepDF.printSchema()
-        sleepDF.createOrReplaceTempView("sleep_subject_%s"%i)
-        test = spark.sql("SELECT * FROM sleep_subject_%s"%i)
+        sleepDF.createOrReplaceTempView("sleep_file_%s"%(i+1))
+        test = spark.sql("SELECT * FROM sleep_file_%s"%(i+1))
         sleep_stage = test.select('annot_stage').collect()[0][0]
         eeg_Fpz_Cz = test.select('EEG Fpz-Cz').collect()[0][0]
         eeg_Pz_Oz = test.select('EEG Pz-Oz').collect()[0][0]
@@ -30,27 +29,8 @@ def json_dataset_example(spark, number_of_file):
         Night = test.select("Night").collect()[0][0]
         Subject  = test.select("Subject").collect()[0][0]
 
-    # for i in range(number_of_file):
-    #     # get the ith file's sleep stage/channel etc
-    #     sleep_stage = test.select('%s.annot_stage'%i).collect()[0][0]
-    #     eeg_Fpz_Cz = test.select('%s.EEG Fpz-Cz'%i).collect()[0][0]
-    #     eeg_Pz_Oz = test.select('%s.EEG Pz-Oz'%i).collect()[0][0]
-    #     EMG_submental = test.select('%s.EMG submental'%i).collect()[0][0]
-    #     EOG_horizontal = test.select("%s.EOG horizontal"%i).collect()[0][0]
-    #     Event_marker = test.select("%s.Event marker"%i).collect()[0][0] 
-    #     Resp_oro_nasal =  test.select("%s.Resp oro-nasal"%i).collect()[0][0]
-    #     Temp_rectal = test.select("%s.Temp rectal"%i).collect()[0][0]
-    #     annot_stage = test.select("%s.annot_stage"%i).collect()[0][0]
-    #     annot_time = test.select("%s.annot_time"%i).collect()[0][0]
-    #     Night = test.select("%s.Night"%i).collect()[0][0]
-    #     Subject  = test.select("%s.Subject"%i).collect()[0][0]
         
 if __name__ == "__main__":
-    # spark = SparkSession \
-    #     .builder \
-    #     .appName("Python Spark SQL data source example") \
-    #     .getOrCreate()
-
     spark = pyspark.sql.SparkSession.builder.config("spark.driver.memory", "10g")\
         .config("spark.memory.fraction", 0.8).config("spark.executor.memory", "2g")\
         .config("spark.sql.shuffle.partitions" , "100").appName('test').getOrCreate()
