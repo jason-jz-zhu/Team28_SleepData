@@ -1,22 +1,18 @@
+import pyspark
 from __future__ import print_function
 from pyspark.sql import SparkSession
 from pyspark.sql import Row
 
 def json_dataset_example(spark, number_of_file):
     sc = spark.sparkContext
-    # put json data to hdfs first 
-    # hdfs dfs -put data_st.json /input
-
     #put multiple files into hdfs
     # hdfs dfs -put subject* /input
-    # update to your path
-    # path = "/input/data_st.json"
-
-    # 
     for i in range(number_of_file):
-        path = "/input/subject_%s.json"%i
+            # update to your path
+        path = "/input/file_%s.json"%i
         #read in data
         sleepDF = spark.read.option("inferSchema", "true").json(path).repartition(10)
+        print("succcessfully read the subject%s"%i)
         # print schema
         sleepDF.printSchema()
         sleepDF.createOrReplaceTempView("sleep_subject_%s"%i)
@@ -55,11 +51,11 @@ if __name__ == "__main__":
     #     .appName("Python Spark SQL data source example") \
     #     .getOrCreate()
 
-    spark = pyspark.sql.SparkSession.builder.config("spark.driver.memory", "10g")
-        .config("spark.memory.fraction", 0.8).config("spark.executor.memory", "2g")
+    spark = pyspark.sql.SparkSession.builder.config("spark.driver.memory", "10g")\
+        .config("spark.memory.fraction", 0.8).config("spark.executor.memory", "2g")\
         .config("spark.sql.shuffle.partitions" , "100").appName('test').getOrCreate()
 
-    json_dataset_example(spark)
+    json_dataset_example(spark,38)
 
 
 
