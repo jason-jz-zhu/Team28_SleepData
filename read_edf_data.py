@@ -7,18 +7,19 @@ import json
 import os
 import pandas as pd
 
-# edf_path = "data/sleep-edf-database-expanded-1.0.0/sleep-cassette"
-edf_path = "../data/sleep-edf-database-expanded-1.0.0/sleep-telemetry"
+edf_path = "../data/sleep-edf-database-expanded-1.0.0/sleep-cassette"
+# edf_path = "../data/sleep-edf-database-expanded-1.0.0/sleep-telemetry"
 
 data = defaultdict()
-pnamestart="ST7"
-# pnamestart="SC4"
+# pnamestart="ST7"
+pnamestart="SC4"
 PSGpath = glob.glob(edf_path+"/*PSG.edf")
 Hyppath = glob.glob(edf_path+"/*Hypnogram.edf")
 print(len(PSGpath))
 print(len(Hyppath))
 
 #write file for each subject to a single json file
+ind = 0 
 my_dict = {}
 for ipsgpath in PSGpath:
    [sub,night] = re.match(r".*"+pnamestart+"(\d\d)(\d)", ipsgpath).groups()
@@ -36,7 +37,8 @@ for ipsgpath in PSGpath:
     # add annot, divide 100 to keep consistent
    my_dict['annot_time']= np.int32(np.round(events[:,0]/100)).tolist()
    my_dict['annot_stage']= events[:,2].tolist()
-   with open('data/ProcessedData/sleep-telemetry/subject_%s.json'%sub, 'w') as fp:
+   ind = ind +1
+   # with open('../data/ProcessedData/sleep-telemetry/file_%s.json'%ind, 'w') as fp:
+   with open('../data/ProcessedData/sleep-cassette/file_%s.json'%ind, 'w') as fp:
     json.dump(my_dict, fp)
-
 
